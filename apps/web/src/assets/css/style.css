@@ -1,35 +1,28 @@
 /*
 Template Name: Tailwick - Admin & Dashboard Template
 Author: Themesdesign
-Website: https://themesdesign.in/
-Contact: themesdesign.in@gmail.com
 */
 
-/* Google Font Link */
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,100..900;1,100..900&display=swap');
+/* ===== IMPORTS EXTERNOS ===== */
 
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,100..900;1,100..900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Tourney:ital,wght@0,100..900;1,100..900&display=swap');
 
-/* ========= Tailwind CSS ========= */
-@import 'tailwindcss';
+/* ===== IMPORTS LIBRERÍAS ===== */
 
-/* ========= Preline UI ========= */
+@import 'tailwindcss';
 @import 'preline/variants.css';
 
-/* ========= Themes Config ========= */
+/* ===== IMPORTS TEMAS ===== */
+
 @import './themes.css';
 
-/* ========= Tailwind Plugin ========= */
-@plugin "@tailwindcss/typography";
-@plugin "@tailwindcss/forms";
-
-/* ========= Cutsome CSS ========= */
+/* ===== IMPORTS CUSTOM ===== */
 
 @import './structure/_general.css';
 @import './structure/_sidenav.css';
 @import './structure/_topbar.css';
 
-/* Custome Components */
 @import './custom/_reboot.css';
 @import './custom/_helper.css';
 @import './custom/_buttons.css';
@@ -39,8 +32,10 @@ Contact: themesdesign.in@gmail.com
 @import './custom/_print.css';
 @import './custom/_chart.css';
 
-/* Simplebar */
 @import './custom/_simplebar.css';
-
-/* Calendar */
 @import './custom/_calendar.css';
+
+/* ===== PLUGINS TAILWIND (SIEMPRE AL FINAL) ===== */
+
+@plugin "@tailwindcss/typography";
+@plugin "@tailwindcss/forms";
