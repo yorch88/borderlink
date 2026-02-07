@@ -13,7 +13,6 @@ const ProductOverview = lazy(() => import('@/app/(admin)/(app)/(ecommerce)/produ
 const Sellers = lazy(() => import('@/app/(admin)/(app)/(ecommerce)/sellers'));
 
 // admin Hr
-
 const Attendances = lazy(() => import('@/app/(admin)/(app)/(hr)/attendance'));
 const AttemdanceMain = lazy(() => import('@/app/(admin)/(app)/(hr)/attendance-main'));
 const CreateLeave = lazy(() => import('@/app/(admin)/(app)/(hr)/create-leave'));
@@ -73,6 +72,8 @@ const Starter = lazy(() => import('@/app/(admin)/(pages)/starter'));
 const Timeline = lazy(() => import('@/app/(admin)/(pages)/timeline'));
 
 //auth
+const BasicApproveClient = lazy(() => import('@/app/(auth)/basic-approve-client'));
+const BasicRegisterClient = lazy(() => import('@/app/(auth)/basic-register-client'));
 const BasicCreatePassword = lazy(() => import('@/app/(auth)/basic-create-password'));
 const BasicLogin = lazy(() => import('@/app/(auth)/basic-login'));
 const BasicRegister = lazy(() => import('@/app/(auth)/basic-register'));
@@ -118,7 +119,6 @@ const Offline = lazy(() => import('@/app/(others)/offline'));
 
 export const layoutsRoutes = [
   { path: '/', name: 'Ecommerce', element: <Ecommerce /> },
-
   { path: '/index', name: 'Ecommerce', element: <Ecommerce /> },
   { path: '/cart', name: 'Cart', element: <Cart /> },
   { path: '/checkout', name: 'Checkout', element: <Checkout /> },
@@ -163,7 +163,6 @@ export const layoutsRoutes = [
   { path: '/notes', name: 'Notes', element: <Notes /> },
 
   { path: '/analytics', name: 'Analytics', element: <Analytics /> },
-  { path: '/', name: 'Ecommerce', element: <Ecommerce /> },
   { path: '/email', name: 'Email', element: <Email /> },
   { path: '/hr', name: 'Hr', element: <Hr /> },
 
@@ -184,6 +183,8 @@ export const layoutsRoutes = [
 ];
 
 export const singlePageRoutes = [
+  { path: '/basic-approve-client', name: 'BasicApproveClient', element: <BasicApproveClient /> },
+  { path: '/basic-register-client', name: 'BasicRegisterClient', element: <BasicRegisterClient /> },
   { path: '/basic-login', name: 'BasicLogin', element: <BasicLogin /> },
   { path: '/basic-register', name: 'BasicRegister', element: <BasicRegister /> },
   { path: '/basic-create-password', name: 'BasicCreatePassword', element: <BasicCreatePassword /> },

@@ -1,20 +1,28 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import logoDark from '@/assets/images/logo-dark.png';
-//import logoLight from '@/assets/images/logo-light.png';
 import borderLogo2 from '@/assets/images/border-logo2.png';
 import PageMeta from '@/components/PageMeta';
-import { loginUser } from './api';
+import { registerTenant } from './api';
 
 const Index = () => {
-  const navigate = useNavigate();
-
+  const GIROS = [
+    'psychology',
+    'medical',
+    'legal',
+    'accounting',
+    'education',
+    'consulting',
+  ];
   const [form, setForm] = useState({
     email: '',
     password: '',
+    giro: '',
+    org_name: '',
+    modules: ['MetalIA MS'],
+    captcha_token: 'dev',
   });
 
   const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -28,15 +36,13 @@ const Index = () => {
     e.preventDefault();
     setLoading(true);
     setError(null);
+    setMessage(null);
 
     try {
-      const data = await loginUser(form);
-
-      // Guardar token
-      localStorage.setItem('access_token', data.access_token);
-
-      // Redirigir a página principal (sin hardcodear localhost)
-      navigate('/');
+      const data = await registerTenant(form);
+      setMessage(
+        `Tenant creado. Código: ${data.client_code} | DB: ${data.db_name} | Estado: ${data.status}`
+      );
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -46,7 +52,7 @@ const Index = () => {
 
   return (
     <>
-      <PageMeta title="Login" />
+      <PageMeta title="Registro Organización" />
 
       <div className="relative min-h-screen w-full flex justify-center items-center py-16">
         <div className="card md:w-lg w-screen z-10">
@@ -66,19 +72,20 @@ const Index = () => {
                 "
               />
             </div>
-            <div className="mt-8 text-center">
+
+            <div className="mt-8">
               <h4 className="mb-2 text-xl font-semibold text-primary">
-                Iniciar Sesión
+                Registrar Organización
               </h4>
               <p className="text-base text-default-500">
-                Accede a tu organización
+                Crea tu tenant para comenzar.
               </p>
             </div>
 
             <form onSubmit={handleSubmit} className="text-left w-full mt-10">
 
               <div className="mb-4">
-                <label className="block text-sm mb-2">Email</label>
+                <label className="block text-sm mb-2">Email Admin</label>
                 <input
                   type="email"
                   name="email"
@@ -89,7 +96,7 @@ const Index = () => {
                 />
               </div>
 
-              <div className="mb-6">
+              <div className="mb-4">
                 <label className="block text-sm mb-2">Password</label>
                 <input
                   type="password"
@@ -101,30 +108,62 @@ const Index = () => {
                 />
               </div>
 
-              {error && (
-                <div className="mb-4 text-red-600 text-sm">
-                  {error}
-                </div>
-              )}
+              <div className="mb-4">
+                <label className="block text-sm mb-2">Nombre Organización</label>
+                <input
+                  type="text"
+                  name="org_name"
+                  value={form.org_name}
+                  onChange={handleChange}
+                  className="form-input"
+                  required
+                />
+              </div>
+
+              <div className="mb-6">
+                <label className="block text-sm mb-2">Giro</label>
+                <select
+                  name="giro"
+                  value={form.giro}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      giro: e.target.value,
+                    })
+                  }
+                  className="form-input"
+                  required
+                >
+                  <option value="">Selecciona un giro</option>
+                  {GIROS.map((g) => (
+                    <option key={g} value={g}>
+                      {g}
+                    </option>
+                  ))}
+                </select>
+
+              </div>
 
               <button
                 type="submit"
                 disabled={loading}
                 className="btn bg-primary text-white w-full"
               >
-                {loading ? 'Ingresando...' : 'Iniciar Sesión'}
+                {loading ? 'Creando tenant...' : 'Registrar'}
               </button>
-
-              <div className="mt-6 text-center">
-                <p className="text-sm text-default-500">
-                  ¿No tienes cuenta?{' '}
-                  <Link to="/basic-register-client" className="text-primary underline">
-                    Regístrate
-                  </Link>
-                </p>
-              </div>
-
             </form>
+
+            {message && (
+              <div className="mt-6 text-green-600 text-sm">
+                {message}
+              </div>
+            )}
+
+            {error && (
+              <div className="mt-6 text-red-600 text-sm">
+                {error}
+              </div>
+            )}
           </div>
         </div>
       </div>

@@ -3,11 +3,11 @@ services:
     build:
       context: ./apps/api
       dockerfile: Dockerfile.dev
-    container_name: tailhawk_api
+    container_name: healthms_api
     ports:
       - "8000:8000"
     env_file:
-      - ./apps/api/.env.example
+      - ./apps/api/.env
     volumes:
       - ./apps/api:/app
     depends_on:
@@ -18,11 +18,11 @@ services:
     build:
       context: ./apps/web
       dockerfile: Dockerfile.dev
-    container_name: tailhawk_web
+    container_name: healthms_web
     ports:
       - "5173:5173"
     env_file:
-      - ./apps/web/.env.example
+      - ./apps/web/.env
     volumes:
       - ./apps/web:/app
       - /app/node_modules
@@ -31,14 +31,14 @@ services:
 
   mongo:
     image: mongo:latest
-    container_name: tailhawk_mongo
+    container_name: healthms_mongo
 
     volumes:
       - mongo_data:/data/db
 
   redis:
     image: redis:latest
-    container_name: tailhawk_redis
+    container_name: healthms_redis
 
     volumes:
       - redis_data:/data
