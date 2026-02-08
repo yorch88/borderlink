@@ -3,7 +3,34 @@ import borderLogo2 from '@/assets/images/border-logo2.png';
 import PageMeta from '@/components/PageMeta';
 import { registerTenant } from './api';
 
+const API_URL = import.meta.env.VITE_API_URL;
+
+async function solvePow(nonce: string, difficulty: number) {
+  let counter = 0;
+
+  while (true) {
+    const data = new TextEncoder().encode(nonce + counter);
+    const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hashHex = hashArray
+      .map(b => b.toString(16).padStart(2, "0"))
+      .join("");
+
+    if (hashHex.startsWith("0".repeat(difficulty))) {
+      return counter;
+    }
+
+    counter++;
+
+    // Evita congelar el navegador
+    if (counter % 500 === 0) {
+      await new Promise(resolve => setTimeout(resolve, 0));
+    }
+  }
+}
+
 const Index = () => {
+
   const GIROS = [
     'psychology',
     'medical',
@@ -12,13 +39,13 @@ const Index = () => {
     'education',
     'consulting',
   ];
+
   const [form, setForm] = useState({
     email: '',
     password: '',
     giro: '',
     org_name: '',
     modules: ['MetalIA MS'],
-    captcha_token: 'dev',
   });
 
   const [loading, setLoading] = useState(false);
@@ -39,12 +66,36 @@ const Index = () => {
     setMessage(null);
 
     try {
-      const data = await registerTenant(form);
+      // 1️⃣ Pedir challenge
+      const challengeRes = await fetch(`${API_URL}/v1/onboarding/challenge`)
+
+      if (!challengeRes.ok) {
+        throw new Error("No se pudo obtener challenge");
+      }
+
+      const challenge = await challengeRes.json();
+
+      // 2️⃣ Resolver PoW
+      const counter = await solvePow(
+        challenge.nonce,
+        challenge.difficulty
+      );
+
+      // 3️⃣ Enviar registro con PoW
+      const data = await registerTenant({
+        ...form,
+        pow: {
+          nonce: challenge.nonce,
+          counter,
+        },
+      });
+
       setMessage(
         `Tenant creado. Código: ${data.client_code} | DB: ${data.db_name} | Estado: ${data.status}`
       );
+
     } catch (err: any) {
-      setError(err.message);
+      setError(err.message || "Error inesperado");
     } finally {
       setLoading(false);
     }
@@ -57,19 +108,12 @@ const Index = () => {
       <div className="relative min-h-screen w-full flex justify-center items-center py-16">
         <div className="card md:w-lg w-screen z-10">
           <div className="text-center px-10 py-12">
-          <div className="flex justify-center mb-1">
+
+            <div className="flex justify-center mb-1">
               <img
                 src={borderLogo2}
-                alt="logo light"
-                className="
-                  w-[220px]
-                  sm:w-[260px]
-                  
-                  max-w-full
-                  h-auto
-                  object-contain
-                  drop-shadow-lg
-                "
+                alt="logo"
+                className="w-[220px] sm:w-[260px] max-w-full h-auto object-contain drop-shadow-lg"
               />
             </div>
 
@@ -141,7 +185,6 @@ const Index = () => {
                     </option>
                   ))}
                 </select>
-
               </div>
 
               <button
@@ -149,8 +192,9 @@ const Index = () => {
                 disabled={loading}
                 className="btn bg-primary text-white w-full"
               >
-                {loading ? 'Creando tenant...' : 'Registrar'}
+                {loading ? 'Verificando seguridad...' : 'Registrar'}
               </button>
+
             </form>
 
             {message && (
@@ -164,6 +208,7 @@ const Index = () => {
                 {error}
               </div>
             )}
+
           </div>
         </div>
       </div>

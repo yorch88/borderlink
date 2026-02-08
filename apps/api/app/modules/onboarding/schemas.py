@@ -7,7 +7,7 @@ class RegisterIn(BaseModel):
     giro: str  # psychology, dentist, etc.
     org_name: str
     modules: List[str] = []  # ["MetalIA MS", "DentIA MS"]
-    captcha_token: str
+    #captcha_token: str
 
 class RegisterOut(BaseModel):
     client_code: str
@@ -20,3 +20,17 @@ class ApproveIn(BaseModel):
 class ApproveOut(BaseModel):
     status: str
     tenant_db: str
+
+
+class PowPayload(BaseModel):
+    nonce: str
+    counter: int
+
+
+class RegisterIn(BaseModel):
+    email: str
+    password: str
+    giro: str
+    org_name: str
+    modules: list[str]
+    pow: PowPayload

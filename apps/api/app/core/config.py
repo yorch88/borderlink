@@ -64,6 +64,9 @@ class Settings(BaseSettings):
     ALLOWED_ORIGINS: str = ""
     SWAGGER_USER: str
     SWAGGER_PASSWORD: str
+    
+    REDIS_HOST: str
+    REDIS_PORT: str
 
     class Config:
         env_file = ".env"
