@@ -13,6 +13,10 @@ export default defineConfig({
     host: true,
     port: 5173,
     strictPort: true,
+    allowedHosts: ["mentalia.borderlink.mx"],
+    hmr: {
+      clientPort: 443
+    },
     watch: {
       usePolling: true
     }
