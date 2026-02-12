@@ -2,7 +2,7 @@
 # Config
 # ===============================
 
-COMPOSE=docker compose
+COMPOSE=docker-compose
 API_CONTAINER=healthms_api
 WEB_CONTAINER=healthms_web
 MONGO_CONTAINER=healthms_mongo

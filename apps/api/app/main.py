@@ -11,29 +11,38 @@ from app.modules.onboarding.router import router as onboarding_router
 from app.modules.auth.router import router as auth_router
 
 # =====================================================
+# Environment Config
+# =====================================================
+
+APP_ENV = os.getenv("APP_ENV", "development")
+APP_NAME = os.getenv("APP_NAME", "Borderlink API")
+ROOT_PATH = os.getenv("APP_ROOT_PATH", "")
+DEBUG = os.getenv("DEBUG", "false").lower() == "true"
+
+# =====================================================
 # App Initialization
 # =====================================================
 
 app = FastAPI(
-    title="Borderlink API",
+    title=APP_NAME,
     lifespan=lifespan,
-    root_path="/api",          # IMPORTANTE para nginx /api/
-    docs_url=None,             # Desactivamos docs automáticos
+    root_path=ROOT_PATH,
+    docs_url=None,
     redoc_url=None,
-    openapi_url=None
+    openapi_url=None,
+    debug=DEBUG
 )
 
 # =====================================================
-# CORS
+# CORS (Dynamic)
 # =====================================================
+
+origins = os.getenv("ALLOWED_ORIGINS", "")
+origins = [origin.strip() for origin in origins.split(",") if origin]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "https://mentalia.borderlink.mx",
-        "http://localhost:5173",
-        "http://localhost:3000"
-    ],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -52,7 +61,10 @@ app.include_router(auth_router)
 
 @app.get("/health")
 def health():
-    return {"status": "ok"}
+    return {
+        "status": "ok",
+        "environment": APP_ENV
+    }
 
 # =====================================================
 # Protected Swagger
@@ -80,15 +92,13 @@ def verify_credentials(credentials: HTTPBasicCredentials = Depends(security)):
             headers={"WWW-Authenticate": "Basic"},
         )
 
-# Swagger UI protegido
 @app.get("/docs", include_in_schema=False)
 def protected_swagger(credentials: HTTPBasicCredentials = Depends(verify_credentials)):
     return get_swagger_ui_html(
-        openapi_url="/api/openapi.json",  # IMPORTANTE con root_path
-        title="Borderlink API - Docs"
+        openapi_url=f"{ROOT_PATH}/openapi.json",
+        title=f"{APP_NAME} - Docs"
     )
 
-# OpenAPI protegido
 @app.get("/openapi.json", include_in_schema=False)
 def openapi(credentials: HTTPBasicCredentials = Depends(verify_credentials)):
     return get_openapi(
