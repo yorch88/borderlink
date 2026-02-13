@@ -12,6 +12,7 @@ export async function registerTenant(payload) {
   if (!response.ok) {
     const error = await response.json();
     throw new Error(error?.detail?.[0]?.msg || 'Error en registro');
+
   }
 
   return response.json();

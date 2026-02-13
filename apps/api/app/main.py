@@ -9,7 +9,7 @@ from fastapi.openapi.utils import get_openapi
 from app.core.lifespan import lifespan
 from app.modules.onboarding.router import router as onboarding_router
 from app.modules.auth.router import router as auth_router
-
+from app.modules.landing.router import router as land_router
 # =====================================================
 # Environment Config
 # =====================================================
@@ -54,6 +54,7 @@ app.add_middleware(
 
 app.include_router(onboarding_router)
 app.include_router(auth_router)
+app.include_router(land_router)
 
 # =====================================================
 # Health Check
