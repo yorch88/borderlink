@@ -20,9 +20,7 @@ const Index = () => {
     try {
       const data = await approveTenant(apiKey);
 
-      setMessage(
-        `Tenant creado. Código: ${data.client_code} | DB: ${data.db_name}`
-      );
+      setMessage(data.message);
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);

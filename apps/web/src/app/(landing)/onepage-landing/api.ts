@@ -4,10 +4,26 @@ const API_URL: string = import.meta.env.VITE_API_URL as string;
    Types
 ========================= */
 
+export interface LandingData {
+  heroTitle?: string;
+  heroSubtitle?: string;
+  aboutTitle?: string;
+  aboutDescription?: string;
+  features?: { title: string; description: string }[];
+  contactTitle?: string;
+  contactSubtitle?: string;
+  privacyText?: string;
+  footerText?: string;
+  socialLinks?: {
+    linkedin?: string;
+    facebook?: string;
+  };
+}
+
 export interface ContactPayload {
   name: string;
   email: string;
-  phone?: string; // 👈 ahora existe
+  phone?: string;
   message: string;
   pow: {
     nonce: string;
@@ -29,6 +45,18 @@ interface ApiValidationError {
 /* =========================
    API
 ========================= */
+
+export async function getLanding(): Promise<LandingData> {
+  const response: Response = await fetch(
+    `${API_URL}/v1/landing`
+  );
+
+  if (!response.ok) {
+    throw new Error("Error cargando landing");
+  }
+
+  return response.json();
+}
 
 export async function sendContact(
   payload: ContactPayload

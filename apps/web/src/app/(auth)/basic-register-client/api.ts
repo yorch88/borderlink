@@ -5,17 +5,20 @@ const API_URL: string = import.meta.env.VITE_API_URL as string;
 ========================= */
 
 export interface RegisterTenantPayload {
-  companyName: string;
   email: string;
   password: string;
-  // agregá los campos reales de tu backend
+  giro: string;
+  org_name: string;
+  modules: string[];
+  pow: {
+    nonce: string;
+    counter: number;
+  };
 }
-
 export interface RegisterTenantResponse {
-  id: number;
-  companyName: string;
-  email: string;
-  // ajustalo a lo que devuelve realmente
+  client_code: string;
+  db_name: string;
+  status: string;
 }
 
 interface ApiValidationError {
