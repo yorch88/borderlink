@@ -67,7 +67,7 @@ const Index = () => {
 
     try {
       // 1️⃣ Pedir challenge
-      const challengeRes = await fetch(`${API_URL}/v1/onboarding/challenge`)
+      const challengeRes = await fetch(`${API_URL}/v1/security/challenge`)
 
       if (!challengeRes.ok) {
         throw new Error("No se pudo obtener challenge");

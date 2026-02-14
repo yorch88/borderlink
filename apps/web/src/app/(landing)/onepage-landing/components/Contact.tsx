@@ -1,28 +1,227 @@
-import { LuShoppingCart } from 'react-icons/lu';
+import { useState } from "react";
+import { sendContact } from "../api";
 
-const Contact = () => {
+type ContactProps = {
+  data?: {
+    contactTitle?: string;
+    contactSubtitle?: string;
+    privacyText?: string;
+  };
+};
+
+const Contact = ({ data }: ContactProps) => {
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    message: "",
+    accepted: false,
+  });
+
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const onChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value, type } = e.target;
+
+    if (type === "checkbox") {
+      const checked = (e.target as HTMLInputElement).checked;
+      setForm((prev) => ({ ...prev, [name]: checked }));
+      return;
+    }
+
+    setForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  // ---------------------------
+  // GET Challenge
+  // ---------------------------
+  const getChallenge = async () => {
+    const res = await fetch("http://127.0.0.1:8000/v1/security/challenge");
+    if (!res.ok) throw new Error("No se pudo obtener challenge");
+    return res.json();
+  };
+
+  // ---------------------------
+  // SHA-256 POW Solver
+  // ---------------------------
+  const solvePow = async (nonce: string, difficulty: number) => {
+    let counter = 0;
+    const prefix = "0".repeat(difficulty);
+
+    while (true) {
+      const data = nonce + counter;
+
+      const hashBuffer = await crypto.subtle.digest(
+        "SHA-256",
+        new TextEncoder().encode(data)
+      );
+
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      const hashHex = hashArray
+        .map((b) => b.toString(16).padStart(2, "0"))
+        .join("");
+
+      if (hashHex.startsWith(prefix)) {
+        return counter;
+      }
+
+      counter++;
+    }
+  };
+
+  // ---------------------------
+  // Submit
+  // ---------------------------
+  const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setSuccess(null);
+
+    if (!form.accepted) {
+      setError("Debes aceptar el aviso de privacidad para continuar.");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      // 1️⃣ Obtener challenge
+      const challenge = await getChallenge();
+
+      // 2️⃣ Resolver POW
+      const counter = await solvePow(
+        challenge.nonce,
+        challenge.difficulty
+      );
+
+      // 3️⃣ Enviar formulario con pow
+      await sendContact({
+        name: form.name,
+        email: form.email,
+        phone: form.phone,
+        message: form.message,
+        pow: {
+          nonce: challenge.nonce,
+          counter,
+        },
+      });
+
+      setSuccess(
+        "Gracias. Recibimos tu mensaje y te contactaremos pronto."
+      );
+
+      setForm({
+        name: "",
+        email: "",
+        phone: "",
+        message: "",
+        accepted: false,
+      });
+    } catch (err: any) {
+      setError(err?.message || "Ocurrió un error al enviar tu mensaje.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <section id="contact" className="relative py-20 bg-blue-700/80 dark:bg-blue-900">
-      <div className="absolute size-125 border border-dashed rotate-45 border-t-primary border-l-primary border-r-default-700 border-b-default-700 rounded-full right-40 -bottom-62.5 z-10 lg:block hidden"></div>
-      <div className="container">
-        <div className="lg:flex justify-between items-center">
+    <section
+      id="contact"
+      className="relative py-20 bg-blue-700/80 dark:bg-blue-900"
+    >
+      <div className="container relative z-20">
+        <div className="grid lg:grid-cols-2 gap-10 items-start">
           <div>
-            <h1 className="mb-4 capitalize text-blue-50 leading-normal text-4xl font-semibold">
-              Ready to get started with Tailwick
-            </h1>
+            <h2 className="mb-4 capitalize text-blue-50 leading-normal text-4xl font-semibold">
+              {data?.contactTitle || "Contáctanos"}
+            </h2>
 
             <p className="text-lg text-blue-200">
-              Tell us which describes you, and we'll get in touch with next steps.
+              {data?.contactSubtitle ||
+                "Cuéntanos lo que necesitas y te responderemos con los siguientes pasos."}
             </p>
           </div>
 
-          <button
-            type="button"
-            className="relative z-20 btn  bg-card hover:text-blue-800 text-primary lg:mt-0 md:mt-4"
+          <form
+            onSubmit={onSubmit}
+            className="bg-card/10 backdrop-blur rounded-xl p-6 border border-white/15"
           >
-            <LuShoppingCart className="size-4" />
-            Purchase Now
-          </button>
+            <div className="grid md:grid-cols-2 gap-4">
+              <input
+                name="name"
+                value={form.name}
+                onChange={onChange}
+                placeholder="Tu nombre"
+                required
+                className="form-input w-full"
+              />
+
+              <input
+                type="email"
+                name="email"
+                value={form.email}
+                onChange={onChange}
+                placeholder="tucorreo@dominio.com"
+                required
+                className="form-input w-full"
+              />
+
+              <input
+                name="phone"
+                value={form.phone}
+                onChange={onChange}
+                placeholder="Opcional"
+                className="form-input w-full md:col-span-2"
+              />
+
+              <textarea
+                name="message"
+                value={form.message}
+                onChange={onChange}
+                placeholder="Cuéntanos sobre tu proyecto..."
+                required
+                className="form-input w-full md:col-span-2 min-h-[120px]"
+              />
+
+              <div className="md:col-span-2 flex items-start gap-3">
+                <input
+                  type="checkbox"
+                  name="accepted"
+                  checked={form.accepted}
+                  onChange={onChange}
+                  className="mt-1"
+                />
+                <p className="text-sm text-blue-100">
+                  {data?.privacyText ||
+                    "Acepto que mis datos serán utilizados únicamente para contacto y no serán compartidos con terceros."}
+                </p>
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading || !form.accepted}
+                className="btn bg-card hover:text-blue-800 text-primary w-full md:col-span-2 disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                {loading ? "Validando..." : "Enviar mensaje"}
+              </button>
+
+              {success && (
+                <div className="md:col-span-2 text-sm text-green-200">
+                  {success}
+                </div>
+              )}
+
+              {error && (
+                <div className="md:col-span-2 text-sm text-red-200">
+                  {error}
+                </div>
+              )}
+            </div>
+          </form>
         </div>
       </div>
     </section>

@@ -65,6 +65,9 @@ class Settings(BaseSettings):
     SWAGGER_USER: str
     SWAGGER_PASSWORD: str
     
+    ANTIBOT_DIFFICULTY: int = 4
+    ANTIBOT_TTL: int = 120
+
     REDIS_HOST: str
     REDIS_PORT: str
 

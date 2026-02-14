@@ -1,90 +1,108 @@
-import darkLogo from '@/assets/images/logo-dark.png';
-import logoLight from '@/assets/images/logo-light.png';
-import { LuLogIn } from 'react-icons/lu';
-import { Link } from 'react-router';
-import MobileMenu from './MobileMenu';
+import { Link, useLocation } from "react-router-dom";
+import borderLogo2 from "@/assets/images/border-logo2.png";
 
 const Navbar = () => {
+  const location = useLocation();
+
+  // 🔥 Animación personalizada con duración controlada
+  const smoothScrollTo = (targetY, duration = 800) => {
+    const startY = window.pageYOffset;
+    const distance = targetY - startY;
+    let startTime = null;
+
+    const animation = (currentTime) => {
+      if (!startTime) startTime = currentTime;
+      const timeElapsed = currentTime - startTime;
+      const progress = Math.min(timeElapsed / duration, 1);
+
+      // easing elegante (easeInOutCubic)
+      const ease =
+        progress < 0.5
+          ? 4 * progress * progress * progress
+          : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+
+      window.scrollTo(0, startY + distance * ease);
+
+      if (timeElapsed < duration) {
+        requestAnimationFrame(animation);
+      }
+    };
+
+    requestAnimationFrame(animation);
+  };
+
+  const handleScroll = (id) => {
+    if (location.pathname !== "/onepage-landing") {
+      window.location.href = "/onepage-landing";
+      return;
+    }
+  
+    const offset = 80;
+  
+    if (id === "top") {
+      smoothScrollTo(0, 800);
+      return;
+    }
+  
+    const element = document.getElementById(id);
+    if (!element) return;
+  
+    const elementPosition = element.getBoundingClientRect().top;
+    const offsetPosition = elementPosition + window.pageYOffset - offset;
+  
+    smoothScrollTo(offsetPosition, 800);
+  };
+
   return (
-    <header>
-      <nav className="fixed inset-x-0 top-0 z-50 bg-card py-6  shadow flex justify-between items-center">
-        <div className="container">
-          <div className="grid lg:grid-cols-12 md:grid-cols-10 grid-cols-2 items-center">
-            <div className="lg:col-span-2 md:col-span-2">
-              <Link to="/index">
-                <img src={darkLogo} alt="logo dark" className="h-6 block dark:hidden" width={111} />
-                <img
-                  src={logoLight}
-                  alt="logo light"
-                  className="h-6 hidden dark:block"
-                  width={111}
-                />
-              </Link>
-            </div>
+    <nav className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur border-b border-default-200">
+      <div className="container flex items-center justify-between h-20">
 
-            <div className="lg:col-span-8 md:col-span-6 md:block hidden">
-              <ul className="flex items-center justify-center lg:gap-8 md:gap-6 font-medium text-sm">
-                <li>
-                  <a
-                    href="#home"
-                    className="text-default-800  hover:text-primary transition duration-300"
-                  >
-                    Home
-                  </a>
-                </li>
+        {/* Logo */}
+        <Link to="/onepage-landing" className="flex items-center">
+          <img
+            src={borderLogo2}
+            alt="Borderlink"
+            className="h-16 object-contain"
+          />
+        </Link>
 
-                <li>
-                  <a
-                    href="#features"
-                    className="text-default-800  hover:text-primary transition duration-300"
-                  >
-                    Our Features
-                  </a>
-                </li>
+        {/* Links */}
+        <div className="hidden md:flex items-center gap-8 text-default-700">
+          <button onClick={() => handleScroll("top")} className="hover:text-primary transition">
+            Inicio
+          </button>
 
-                <li>
-                  <a
-                    href="#about"
-                    className="text-default-800  hover:text-primary transition duration-300"
-                  >
-                    About Us
-                  </a>
-                </li>
+          <button
+            onClick={() => handleScroll("about")}
+            className="hover:text-primary transition"
+          >
+            Nosotros
+          </button>
 
-                <li>
-                  <a
-                    href="#pricing"
-                    className="text-default-800  hover:text-primary transition duration-300"
-                  >
-                    Pricing
-                  </a>
-                </li>
+          <button
+            onClick={() => handleScroll("features")}
+            className="hover:text-primary transition"
+          >
+            Soluciones
+          </button>
 
-                <li>
-                  <a
-                    href="#contact"
-                    className="text-default-800  hover:text-primary transition duration-300"
-                  >
-                    Contact
-                  </a>
-                </li>
-              </ul>
-            </div>
-
-            <div className="lg:col-span-2 md:col-span-2 flex items-center justify-end gap-2">
-              <MobileMenu />
-
-              <Link to="#" className="flex justify-end">
-                <button type="button" className="btn bg-primary text-white">
-                  Sign In
-                  <LuLogIn className="size-4" />
-                </button>
-              </Link>
-            </div>
-          </div>
+          <button
+            onClick={() => handleScroll("contact")}
+            className="hover:text-primary transition"
+          >
+            Contacto
+          </button>
         </div>
-      </nav>
-    </header>
+
+        {/* Sign In */}
+        <Link to="/basic-login">
+          <button className="btn bg-primary text-white px-6">
+            Sign In
+          </button>
+        </Link>
+
+      </div>
+    </nav>
   );
 };
 

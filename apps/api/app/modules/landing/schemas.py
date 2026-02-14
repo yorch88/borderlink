@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from typing import List, Optional
+from app.schemas.pow import PowIn
 
 class Feature(BaseModel):
     title: str
@@ -27,3 +28,4 @@ class ContactIn(BaseModel):
     email: str
     phone: Optional[str] = None
     message: str
+    pow: PowIn
